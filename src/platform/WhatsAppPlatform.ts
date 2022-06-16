@@ -142,14 +142,14 @@ export class WhatsAppPlatform {
         let profilePicURL: string = await contact.getProfilePicUrl();
         let escapedContent: string = contentPrefix + (DiscordUtil.cleanContent(msg.body, discordChannel) || '[no content]');
         for (const mentioned of await msg.getMentions()) {
-            let name: string = `**@${mentioned.pushname}**`;
+            let name: string = `*@${mentioned.pushname}*`;
             const mentionedAuthor: Author | null = await Author.findOne({
                 where: {
                     whatsAppPhoneNumber: mentioned.number
                 }
             });
             if (mentionedAuthor !== null) {
-                name = `**@${mentionedAuthor.displayName}**`;
+                name = `*@${mentionedAuthor.displayName}*`;
 
                 if (mentionedAuthor.discordId !== null) {
                     name = `<@${mentionedAuthor.discordId}>`;

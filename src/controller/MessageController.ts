@@ -11,7 +11,7 @@ export class MessageController {
                 where: {
                     [Op.or]: [{ id }]
                 },
-                include: [Author, Channel, { model: Message, include: [Author, Channel] }],
+                include: [Author, Channel, { model: Message, include: [Author, Channel, PlatformMessage] }, PlatformMessage],
                 nest: true
             });
 
