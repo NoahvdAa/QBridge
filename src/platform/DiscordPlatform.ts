@@ -125,9 +125,9 @@ export class DiscordPlatform {
             const emoji = escapedContent.match(/<a:.+?:\d+>|<:.+?:\d+>/g);
             if (emoji !== null) {
                 for (const emote of emoji) {
-                    const parts = emote.replace(/\<|\>/g, '').split(':');
-                    const extension = parts[0] === 'a' ? 'gif' : 'png';
-                    const url = `https://cdn.discordapp.com/emojis/${parts[2]}.${extension}`;
+                    const parts: string[] = emote.replace(/\<|\>/g, '').split(':');
+                    const extension: string = parts[0] === 'a' ? 'gif' : 'png';
+                    const url: string = `https://cdn.discordapp.com/emojis/${parts[2]}.${extension}`;
                     escapedContent = replaceAll(escapedContent, emote, `:${parts[1]}: (${url})`);
                 }
             }

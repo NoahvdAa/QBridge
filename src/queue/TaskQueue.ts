@@ -21,17 +21,17 @@ export class TaskQueue {
         this.process();
     }
 
-    private run(): void {
+    private async run(): Promise<void> {
         const task: Function = this.queue[0];
 
         try {
-            task();
+            await task();
         } catch (e) {
             console.error('Caught exception while executing task:');
             console.error(e);
         } finally {
             this.queue.shift();
-            setTimeout(() => this.run, 1); // prevent eventual stack overflow if the queue is massive
+            if (this.queue.length !== 0) setTimeout(() => this.run(), 1); // prevent eventual stack overflow if the queue is massive
         }
     }
 
