@@ -1,0 +1,23 @@
+{
+    "attachmentIcons": {
+        "DOCUMENT": ":page_facing_up: ",
+        "AUDIO": ":loud_sound: ",
+        "IMAGE": ":camera_with_flash: ",
+        "VIDEO": ":video_camera: ",
+        "STICKER": ":frame_photo: "
+    },
+    "puppeteerConfig": {
+        "headless": true,
+        "executablePath": "/usr/bin/chromium-browser"
+    },
+    "tokens": {
+        "discord": ""
+    },
+    "sequelizeConfig": {
+        "dialect": "mysql",
+        "host": "localhost",
+        "database": "qbridge",
+        "username": "qbridge",
+        "password": "password"
+    }
+}
