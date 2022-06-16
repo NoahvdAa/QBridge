@@ -225,6 +225,8 @@ export class WhatsAppPlatform {
                 isFirst = false;
             }
 
+            await chat.sendSeen();
+
             if (!media) return;
             // We can just try to upload this without any problems!
             if (mediaData!.length <= 8_000_000) {
