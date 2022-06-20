@@ -5,6 +5,7 @@ import { App } from '../app';
 import { Author, Channel, Message, MessageAttachmentType, MessagePlatform, PlatformMessage, PlatformMessageType } from '../model';
 import { TaskQueue } from '../queue/TaskQueue';
 import { format, replaceAll } from '../util/format';
+import { Flags } from '../model/Author';
 
 const DISCORD_TO_WHATSAPP_FORMATTING = [
     {
@@ -64,7 +65,8 @@ export class DiscordPlatform {
                 },
                 defaults: {
                     discordId: msg.author.id,
-                    displayName: msg.member?.nickname || msg.author.username
+                    displayName: msg.member?.nickname || msg.author.username,
+                    flags: msg.author.bot ? Flags.IS_BOT : 0
                 }
             });
 
