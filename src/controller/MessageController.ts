@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { Author, Channel, Message, MessagePlatform, PlatformMessage } from '../model';
+import { Author, Channel, Message, PlatformMessage } from '../model';
 import { Op } from 'sequelize';
 
 export class MessageController {

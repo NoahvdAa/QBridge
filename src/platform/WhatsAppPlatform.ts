@@ -202,7 +202,7 @@ export class WhatsAppPlatform {
             const discordMessage = await webhookClient.send({
                 embeds: [{
                     description: escapedQuoteContent,
-                    color: quotedMessage && quotedMessage.originalPlatform == MessagePlatform.DISCORD ? 0x5865F2 : 0x25d366,
+                    color: quotedMessage && quotedMessage.originalPlatform == MessagePlatform.DISCORD ? 0x5865F2 : 0x1BA691,
                     author: {
                         name: quotedMessageAuthor ? quotedMessageAuthor.displayName : (await quotedWhatsAppmessage.getContact()).pushname,
                         icon_url: quotedMessage && quotedMessageAuthor && quotedMessage.originalPlatform == MessagePlatform.DISCORD && quotedMessageAuthor.discordId ? await (await discordClient.users.fetch(quotedMessageAuthor.discordId)).avatarURL() || undefined : await (await quotedWhatsAppmessage.getContact()).getProfilePicUrl(),
@@ -267,7 +267,7 @@ export class WhatsAppPlatform {
             return;
         }
 
-        // TODO: compress attachments
+        // TODO: compress attachments if they are too large
 
         const discordMessage = await webhookClient.send({
             username: author.displayName,

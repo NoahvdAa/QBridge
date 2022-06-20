@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { Author, Message, MessagePlatform } from '../model';
+import { Message, MessagePlatform } from '../model';
 
 export class StatsController {
 
