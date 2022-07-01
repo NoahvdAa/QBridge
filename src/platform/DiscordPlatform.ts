@@ -108,7 +108,7 @@ export class DiscordPlatform {
             const whatsAppClient: WhatsAppClient = App.getInstance().whatsAppPlatform.client;
             const targetChat: Chat = await whatsAppClient.getChatById(channel.whatsAppId);
 
-            let escapedContent: string = msg.content || '[no content]';
+            let escapedContent: string = msg.content || ((msg.embeds.length !== 0 ? msg.embeds[0].description : null) || '[no content]');
             for (const [id, mentioned] of msg.mentions.users) {
                 const mentionedAuthor: Author | null = await Author.findOne({
                     where: {
