@@ -195,14 +195,13 @@ export class WhatsAppPlatform {
             // Inserting will become a pain if we don't do it where we do it now, so we'll just update. Not a great solution, but it's w/e
             if (quotedMessage !== null) await Message.update({ replyToId: quotedMessage.id }, { where: { id: message.id } });
 
-            const escapedQuoteContent: string = DiscordUtil.cleanContent(quotedMessage ? quotedMessage.originalPlatform === MessagePlatform.DISCORD ? quotedMessage.content : format(quotedMessage.content, WHATSAPP_TO_DISCORD_FORMATTING) : quotedWhatsAppmessage.body, discordChannel) || '[no content]';
-            let truncatedQuoteContent: string = escapedQuoteContent;
+            let truncatedQuoteContent: string = DiscordUtil.cleanContent(quotedMessage ? quotedMessage.originalPlatform === MessagePlatform.DISCORD ? quotedMessage.content : format(quotedMessage.content, WHATSAPP_TO_DISCORD_FORMATTING) : quotedWhatsAppmessage.body, discordChannel) || '[no content]';
             if (truncatedQuoteContent.length > 50) {
-                truncatedQuoteContent = truncatedQuoteContent.substring(0, 50) + '...';
+                truncatedQuoteContent = truncatedQuoteContent.slice(0, 51) + '...';
             }
             const discordMessage = await webhookClient.send({
                 embeds: [{
-                    description: escapedQuoteContent,
+                    description: truncatedQuoteContent,
                     color: quotedMessage && quotedMessage.originalPlatform == MessagePlatform.DISCORD ? 0x5865F2 : 0x1BA691,
                     author: {
                         name: quotedMessageAuthor ? quotedMessageAuthor.displayName : (await quotedWhatsAppmessage.getContact()).pushname,
