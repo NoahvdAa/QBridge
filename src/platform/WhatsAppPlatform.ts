@@ -159,7 +159,18 @@ export class WhatsAppPlatform {
 
             escapedContent = replaceAll(escapedContent, `@${mentioned.number}`, name);
         }
-        escapedContent = format(escapedContent, WHATSAPP_TO_DISCORD_FORMATTING)
+        escapedContent = format(escapedContent, WHATSAPP_TO_DISCORD_FORMATTING);
+
+        let username: string = author.displayName;
+        if (username.length > 26) username = username.slice(0, 27) + '...';
+        if (this.config.preventDiscordWebhookUsernameConflicts) {
+            // Prevent collisions with users with the same name by adding a small invisible character to the end
+            for (const idNum of String(author.id).split('')) {
+                username += USER_ID_INVISIBLE_CHARS[idNum];
+            }
+            // Discord doesn't allow trailing whitespace, so we have to end with a small character
+            username += '\u2B1E';
+        }
 
         if (msg.hasQuotedMsg) {
             const quotedWhatsAppmessage: WhatsAppMessage = await msg.getQuotedMessage();
@@ -209,7 +220,7 @@ export class WhatsAppPlatform {
                         url: quotedMessageUrl
                     }
                 }],
-                username: author.displayName,
+                username,
                 avatarURL: profilePicURL
             });
 
@@ -219,17 +230,6 @@ export class WhatsAppPlatform {
                 platformMessageId: discordMessage.id,
                 platformMessageType: PlatformMessageType.REPLY_INDICATOR
             });
-        }
-
-        let username: string = author.displayName;
-        if (username.length > 26) username = username.slice(0, 27) + '...';
-        if (this.config.preventDiscordWebhookUsernameConflicts) {
-            // Prevent collisions with users with the same name by adding a small invisible character to the end
-            for (const idNum of String(author.id).split('')) {
-                username += USER_ID_INVISIBLE_CHARS[idNum];
-            }
-            // Discord doesn't allow trailing whitespace, so we have to end with a small character
-            username += '\u2B1E';
         }
 
         let isFirst: boolean = true;
