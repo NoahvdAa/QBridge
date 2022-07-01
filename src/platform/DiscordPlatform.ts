@@ -57,7 +57,7 @@ export class DiscordPlatform {
             if (channel === null) return;
 
             // This is our webhook! Don't echo back what we just sent from WA
-            if (msg.webhookId && channel.discordWebhookURL.indexOf(`/api/webhooks/${msg.webhookId}/`)) return;
+            if (msg.webhookId && channel.discordWebhookURL.indexOf(`/api/webhooks/${msg.webhookId}/`) !== -1) return;
 
             const [author, created]: [Author, boolean] = await Author.findOrCreate({
                 where: {
