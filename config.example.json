@@ -20,5 +20,6 @@
         "username": "qbridge",
         "password": "password"
     },
-    "preventDiscordWebhookUsernameConflicts": true
+    "preventDiscordWebhookUsernameConflicts": true,
+    "httpPort": 3000
 }

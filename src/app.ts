@@ -26,9 +26,8 @@ export class App {
     }
 
     public async start(): Promise<void> {
-        const port = process.env.PORT || 3000;
-
         const config: any = JSON.parse(fs.readFileSync(process.env.CONFIG_PATH || './config.json', 'utf-8'));
+        const port: number = config.httpPort || 3000;
 
         await initDB(config.sequelizeConfig);
 
