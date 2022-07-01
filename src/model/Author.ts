@@ -35,4 +35,8 @@ export class Author extends Model {
     @Column(DataType.INTEGER)
     public flags!: number;
 
+    isBot(): boolean {
+        return (this.flags & Flags.IS_BOT) === Flags.IS_BOT;
+    }
+
 };

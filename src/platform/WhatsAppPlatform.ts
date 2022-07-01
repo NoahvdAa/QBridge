@@ -25,6 +25,7 @@ const WHATSAPP_TO_DISCORD_FORMATTING = [
     // _ = _ on WhatsApp, no need to replace
 ];
 
+const USER_ID_INVISIBLE_CHARS: string[] = ['\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200a', '\u205f'];
 
 export class WhatsAppPlatform {
 
@@ -221,11 +222,22 @@ export class WhatsAppPlatform {
             });
         }
 
+        let username: string = author.displayName;
+        if (username.length > 26) username = username.slice(0, 27) + '...';
+        if (this.config.preventDiscordWebhookUsernameConflicts) {
+            // Prevent collisions with users with the same name by adding a small invisible character to the end
+            for (const idNum of String(author.id).split('')) {
+                username += USER_ID_INVISIBLE_CHARS[idNum];
+            }
+            // Discord doesn't allow trailing whitespace, so we have to end with a small character
+            username += '\u2B1E';
+        }
+
         let isFirst: boolean = true;
         while (escapedContent.length !== 0) {
             const discordMessage = await webhookClient.send({
                 content: escapedContent.slice(0, 2000),
-                username: author.displayName,
+                username,
                 avatarURL: profilePicURL,
                 allowedMentions: {
                     roles: []
@@ -248,7 +260,7 @@ export class WhatsAppPlatform {
         // We can just try to upload this without any problems!
         if (mediaData!.length <= 8_000_000) {
             const discordMessage = await webhookClient.send({
-                username: author.displayName,
+                username,
                 avatarURL: profilePicURL,
                 files: [{
                     attachment: mediaData!,
@@ -270,7 +282,7 @@ export class WhatsAppPlatform {
         // TODO: compress attachments if they are too large
 
         const discordMessage = await webhookClient.send({
-            username: author.displayName,
+            username,
             avatarURL: profilePicURL,
             content: ':x: Message attachment is too large.'
         });

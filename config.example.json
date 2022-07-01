@@ -19,5 +19,6 @@
         "database": "qbridge",
         "username": "qbridge",
         "password": "password"
-    }
+    },
+    "preventDiscordWebhookUsernameConflicts": true
 }
