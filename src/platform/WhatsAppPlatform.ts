@@ -5,6 +5,7 @@ import { Util as DiscordUtil, TextChannel as DiscordTextChannel, Client as Disco
 import { App } from '../app';
 import { format, replaceAll } from '../util/format';
 import { extension } from 'mime-types';
+import qrcode from 'qrcode-terminal';
 
 const WHATSAPP_TO_DISCORD_FORMATTING = [
     {
@@ -48,6 +49,10 @@ export class WhatsAppPlatform {
         this.client.initialize();
 
         this.client.on('message', (msg: WhatsAppMessage) => this.taskQueue.addAndProcess(async () => await this.handleMessage(msg)));
+
+        this.client.on('qr', (qr: string) => {
+            qrcode.generate(qr, { small: true });
+        });
 
         this.client.once('ready', async () => {
             console.log(`Logged in as ${this.client.info.wid.user}!`)
@@ -142,6 +147,7 @@ export class WhatsAppPlatform {
         const discordChannel: DiscordTextChannel = await discordClient.channels.cache.get(channel.discordId) as DiscordTextChannel;
         let profilePicURL: string = await contact.getProfilePicUrl();
         let escapedContent: string = contentPrefix + (DiscordUtil.cleanContent(msg.body, discordChannel) || '[no content]');
+        let mentionedIds: string[] = [];
         for (const mentioned of await msg.getMentions()) {
             let name: string = `*@${mentioned.pushname}*`;
             const mentionedAuthor: Author | null = await Author.findOne({
@@ -153,6 +159,7 @@ export class WhatsAppPlatform {
                 name = `*@${mentionedAuthor.displayName}*`;
 
                 if (mentionedAuthor.discordId !== null) {
+                    mentionedIds.push(mentionedAuthor.discordId);
                     name = `<@${mentionedAuthor.discordId}>`;
                 }
             }
@@ -239,7 +246,8 @@ export class WhatsAppPlatform {
                 username,
                 avatarURL: profilePicURL,
                 allowedMentions: {
-                    roles: []
+                    roles: [],
+                    users: mentionedIds
                 }
             });
 

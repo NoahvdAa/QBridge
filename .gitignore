@@ -1,4 +1,5 @@
 dist/
 node_modules/
-.wwebjs_auth
+.wwebjs_auth/
 config.json
+.DS_Store
