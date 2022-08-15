@@ -46,8 +46,6 @@ export class WhatsAppPlatform {
     }
 
     private async bootstrap(): Promise<void> {
-        this.client.initialize();
-
         this.client.on('message', (msg: WhatsAppMessage) => this.taskQueue.addAndProcess(async () => await this.handleMessage(msg)));
 
         this.client.on('qr', (qr: string) => {
@@ -67,6 +65,8 @@ export class WhatsAppPlatform {
                 }
             }
         });
+
+        this.client.initialize();
     }
 
     private async handleMessage(msg: WhatsAppMessage): Promise<void> {
