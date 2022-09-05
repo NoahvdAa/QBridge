@@ -48,6 +48,8 @@ export class WhatsAppPlatform {
     private async bootstrap(): Promise<void> {
         this.client.on('message', (msg: WhatsAppMessage) => this.taskQueue.addAndProcess(async () => await this.handleMessage(msg)));
 
+        this.client.on('loading_screen', (percentage: string, message: string) => console.log(`Loading: ${message} ${percentage}`))
+
         this.client.on('qr', (qr: string) => {
             qrcode.generate(qr, { small: true });
         });
@@ -126,20 +128,25 @@ export class WhatsAppPlatform {
                     break;
             }
         }
+        let messageSentOn = new Date(msg.timestamp);
         const message: Message = await Message.create({
             authorId: author.id,
             channelId: channel.id,
             originalPlatform: MessagePlatform.WHATSAPP,
             attachmentType,
             attachmentSize,
-            content: msg.body
+            content: msg.body,
+            createdAt: messageSentOn,
+            updatedAt: messageSentOn
         });
 
         await PlatformMessage.create({
             messageId: message.id,
             platform: MessagePlatform.WHATSAPP,
             platformMessageId: msg.id._serialized,
-            platformMessageType: PlatformMessageType.MESSAGE
+            platformMessageType: PlatformMessageType.MESSAGE,
+            createdAt: messageSentOn,
+            updatedAt: messageSentOn
         });
 
         const webhookClient: WebhookClient = new WebhookClient({ url: channel.discordWebhookURL });
