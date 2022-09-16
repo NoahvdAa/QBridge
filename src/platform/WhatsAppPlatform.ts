@@ -48,7 +48,7 @@ export class WhatsAppPlatform {
     private async bootstrap(): Promise<void> {
         this.client.on('message', (msg: WhatsAppMessage) => this.taskQueue.addAndProcess(async () => await this.handleMessage(msg)));
 
-        this.client.on('loading_screen', (percentage: string, message: string) => console.log(`Loading: ${message} ${percentage}`))
+        this.client.on('loading_screen', (percentage: string, message: string) => console.log(`Loading WhatsApp Web: ${message} ${percentage}%`))
 
         this.client.on('qr', (qr: string) => {
             qrcode.generate(qr, { small: true });
