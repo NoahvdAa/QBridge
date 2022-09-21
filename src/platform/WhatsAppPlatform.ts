@@ -128,7 +128,7 @@ export class WhatsAppPlatform {
                     break;
             }
         }
-        let messageSentOn = new Date(msg.timestamp);
+        let messageSentOn = new Date(msg.timestamp * 1000);
         const message: Message = await Message.create({
             authorId: author.id,
             channelId: channel.id,
