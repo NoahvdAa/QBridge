@@ -39,7 +39,7 @@ export class DiscordPlatform {
 
     constructor(config: any) {
         this.config = config;
-        this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageTyping] });
+        this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.MessageContent] });
         this.taskQueue = new TaskQueue();
 
         this.bootstrap();
