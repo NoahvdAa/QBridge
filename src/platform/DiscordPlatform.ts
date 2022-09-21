@@ -1,6 +1,6 @@
-import { Client, Intents, Sticker } from 'discord.js';
+import { Client, GatewayIntentBits, MessageType, Sticker } from 'discord.js';
 import { Client as WhatsAppClient, Chat, Message as WhatsAppMessage, MessageMedia, ContactId } from 'whatsapp-web.js';
-import { Util as DiscordUtil, Message as DiscordMessage } from 'discord.js';
+import { cleanContent, Message as DiscordMessage } from 'discord.js';
 import { App } from '../app';
 import { Author, Channel, Message, MessageAttachmentType, MessagePlatform, PlatformMessage, PlatformMessageType } from '../model';
 import { TaskQueue } from '../queue/TaskQueue';
@@ -39,7 +39,7 @@ export class DiscordPlatform {
 
     constructor(config: any) {
         this.config = config;
-        this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING] });
+        this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageTyping] });
         this.taskQueue = new TaskQueue();
 
         this.bootstrap();
@@ -123,7 +123,7 @@ export class DiscordPlatform {
                 escapedContent = replaceAll(escapedContent, `<@!${mentioned.id}>`, `@${mentionedAuthor.whatsAppPhoneNumber}`);
                 waMessageOptions.mentions.push(await whatsAppClient.getContactById(waId._serialized));
             }
-            escapedContent = DiscordUtil.cleanContent(escapedContent, msg.channel) || '[no content]';
+            escapedContent = cleanContent(escapedContent, msg.channel) || '[no content]';
             const emoji = escapedContent.match(/<a:.+?:\d+>|<:.+?:\d+>/g);
             if (emoji !== null) {
                 for (const emote of emoji) {
@@ -140,7 +140,7 @@ export class DiscordPlatform {
 
             let whatsAppMessageContents: string = `*<${author.displayName}>* ${format(escapedContent, DISCORD_TO_WHATSAPP_FORMATTING)}`;
             let messageType: PlatformMessageType = PlatformMessageType.MESSAGE;
-            if (msg.type === 'CHANNEL_PINNED_MESSAGE') {
+            if (msg.type === MessageType.ChannelPinnedMessage) {
                 whatsAppMessageContents = `📌 *${author.displayName}* pinned a message`;
                 messageType = PlatformMessageType.SYSTEM;
             }
@@ -152,7 +152,7 @@ export class DiscordPlatform {
                 platformMessageType: messageType
             });
 
-            if ((msg.type === 'CHANNEL_PINNED_MESSAGE' || msg.type === 'REPLY') && msg.reference) {
+            if ((msg.type === MessageType.ChannelPinnedMessage || msg.type === MessageType.Reply) && msg.reference) {
                 const referencedDiscordMessage: DiscordMessage = await msg.fetchReference();
                 const referencePlatformMessage: PlatformMessage | null = await PlatformMessage.findOne({
                     where: {
@@ -173,7 +173,7 @@ export class DiscordPlatform {
                     waMessageOptions.quotedMessageId = referenceWhatsAppPlatformMessage.platformMessageId;
                 } else {
                     const authorName: string = referencedDiscordMessage.member?.nickname || referencedDiscordMessage.author.username;
-                    const escapedReplyContent: string = DiscordUtil.cleanContent(referencedDiscordMessage.content, referencedDiscordMessage.channel) || '[no content]';
+                    const escapedReplyContent: string = cleanContent(referencedDiscordMessage.content, referencedDiscordMessage.channel) || '[no content]';
                     let truncatedReplyContent: string = format(escapedReplyContent, DISCORD_TO_WHATSAPP_FORMATTING);
                     if (truncatedReplyContent.length > 50) {
                         truncatedReplyContent = truncatedReplyContent.substring(0, 50) + '...';

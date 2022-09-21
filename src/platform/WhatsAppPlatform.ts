@@ -1,7 +1,7 @@
 import { Chat, Client, Contact, LocalAuth, Message as WhatsAppMessage, MessageMedia, MessageTypes as WhatsAppMessageTypes } from 'whatsapp-web.js';
 import { Author, Channel, Message, MessageAttachmentType, MessagePlatform, PlatformMessage, PlatformMessageType } from '../model';
 import { TaskQueue } from '../queue/TaskQueue';
-import { Util as DiscordUtil, TextChannel as DiscordTextChannel, Client as DiscordClient, WebhookClient } from 'discord.js';
+import { cleanContent, TextChannel as DiscordTextChannel, Client as DiscordClient, WebhookClient } from 'discord.js';
 import { App } from '../app';
 import { format, replaceAll } from '../util/format';
 import { extension } from 'mime-types';
@@ -153,7 +153,7 @@ export class WhatsAppPlatform {
         const discordClient: DiscordClient = App.getInstance().discordPlatform.client;
         const discordChannel: DiscordTextChannel = await discordClient.channels.cache.get(channel.discordId) as DiscordTextChannel;
         let profilePicURL: string = await contact.getProfilePicUrl();
-        let escapedContent: string = contentPrefix + (DiscordUtil.cleanContent(msg.body, discordChannel) || '[no content]');
+        let escapedContent: string = contentPrefix + (cleanContent(msg.body, discordChannel) || '[no content]');
         let mentionedIds: string[] = [];
         for (const mentioned of await msg.getMentions()) {
             let name: string = `*@${mentioned.pushname}*`;
@@ -220,7 +220,7 @@ export class WhatsAppPlatform {
             // Inserting will become a pain if we don't do it where we do it now, so we'll just update. Not a great solution, but it's w/e
             if (quotedMessage !== null) await Message.update({ replyToId: quotedMessage.id }, { where: { id: message.id } });
 
-            let truncatedQuoteContent: string = DiscordUtil.cleanContent(quotedMessage ? quotedMessage.originalPlatform === MessagePlatform.DISCORD ? quotedMessage.content : format(quotedMessage.content, WHATSAPP_TO_DISCORD_FORMATTING) : quotedWhatsAppmessage.body, discordChannel) || '[no content]';
+            let truncatedQuoteContent: string = cleanContent(quotedMessage ? quotedMessage.originalPlatform === MessagePlatform.DISCORD ? quotedMessage.content : format(quotedMessage.content, WHATSAPP_TO_DISCORD_FORMATTING) : quotedWhatsAppmessage.body, discordChannel) || '[no content]';
             if (truncatedQuoteContent.length > 50) {
                 truncatedQuoteContent = truncatedQuoteContent.slice(0, 51) + '...';
             }
