@@ -144,6 +144,10 @@ export class DiscordPlatform {
                 whatsAppMessageContents = `📌 *${author.displayName}* pinned a message`;
                 messageType = PlatformMessageType.SYSTEM;
             }
+            if (msg.type === MessageType.UserJoin) {
+                whatsAppMessageContents = `👋 *${author.displayName}* joined the server`;
+                messageType = PlatformMessageType.SYSTEM;
+            }
 
             await PlatformMessage.create({
                 messageId: message.id,
