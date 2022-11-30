@@ -7,7 +7,7 @@
   "author": "Noah van der Aa <ndvdaa@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^14.6.0",
+    "discord.js": "^14.7.0",
     "express": "^4.18.2",
     "mime-types": "^2.1.35",
     "mysql2": "^2.3.3",
@@ -15,13 +15,13 @@
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.25.3",
     "sequelize-typescript": "^2.1.5",
-    "whatsapp-web.js": "^1.18.3"
+    "whatsapp-web.js": "^1.18.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.30",
     "@types/validator": "^13.7.2",
-    "discord-api-types": "^0.37.14",
+    "discord-api-types": "^0.37.20",
     "typescript": "^4.7.4"
   },
   "scripts": {
