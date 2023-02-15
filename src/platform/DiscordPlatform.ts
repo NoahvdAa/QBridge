@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, MessageType, Sticker } from 'discord.js';
+import { Client, GatewayIntentBits, MessageType, Partials, Sticker } from 'discord.js';
 import { Client as WhatsAppClient, Chat, Message as WhatsAppMessage, MessageMedia, ContactId } from 'whatsapp-web.js';
 import { cleanContent, Message as DiscordMessage } from 'discord.js';
 import { App } from '../app';
@@ -6,6 +6,7 @@ import { Author, Channel, Message, MessageAttachmentType, MessagePlatform, Platf
 import { TaskQueue } from '../queue/TaskQueue';
 import { format, replaceAll } from '../util/format';
 import { Flags } from '../model/Author';
+import { canBeOriginalMessage } from '../model/PlatformMessage';
 
 const DISCORD_TO_WHATSAPP_FORMATTING = [
     {
@@ -39,7 +40,18 @@ export class DiscordPlatform {
 
     constructor(config: any) {
         this.config = config;
-        this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.MessageContent] });
+        this.client = new Client({
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildMessageTyping,
+                GatewayIntentBits.MessageContent
+            ],
+            partials: [
+                Partials.Message
+            ]
+        });
         this.taskQueue = new TaskQueue();
 
         this.bootstrap();
@@ -47,6 +59,8 @@ export class DiscordPlatform {
 
     private async bootstrap(): Promise<void> {
         this.client.on('messageCreate', (msg: DiscordMessage) => this.taskQueue.addAndProcess(async () => {
+            if (msg.partial) return;
+
             const channel: Channel | null = await Channel.findOne({
                 where: {
                     discordId: msg.channel.id
@@ -235,6 +249,30 @@ export class DiscordPlatform {
                 });
             }
         }));
+
+        this.client.on('messageDelete', async (msg: DiscordMessage) => {
+            const platformMessage: PlatformMessage | null = await PlatformMessage.findOne({
+                where: {
+                    platformMessageId: msg.id
+                }
+            });
+
+            if (!platformMessage) return;
+
+            await PlatformMessage.update({ deleted: true }, { where: { id: platformMessage.id } });
+
+            const message: Message | null = await Message.findOne({
+                where: {
+                    id: platformMessage.messageId
+                }
+            });
+
+            if (!message) return;
+
+            if (message.originalPlatform == MessagePlatform.DISCORD && canBeOriginalMessage(platformMessage.platformMessageType)) {
+                await Message.update({ originalPlatformMessageDeleted: true }, { where: { id: message.id } });
+            }
+        });
 
         this.client.once('ready', () => console.log(`Logged in as ${this.client.user!.tag}!`));
 

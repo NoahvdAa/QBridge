@@ -9,13 +9,17 @@ export enum PlatformMessageType {
     SYSTEM
 };
 
+export function canBeOriginalMessage(messageType: PlatformMessageType): boolean {
+    return messageType == PlatformMessageType.MESSAGE || messageType == PlatformMessageType.SYSTEM;
+}
+
 @Table
 export class PlatformMessage extends Model {
 
     @BelongsTo(() => Message)
     public message!: Message;
     @ForeignKey(() => Message)
-    @Column({ type: DataType.INTEGER })
+    @Column(DataType.INTEGER)
     public messageId!: number;
 
     @Column(DataType.STRING)
@@ -26,5 +30,8 @@ export class PlatformMessage extends Model {
 
     @Column(DataType.STRING)
     public platformMessageType!: PlatformMessageType;
+
+    @Column({ type: DataType.BOOLEAN, defaultValue: false })
+    public deleted!: boolean;
 
 };

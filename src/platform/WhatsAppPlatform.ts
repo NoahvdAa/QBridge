@@ -6,6 +6,7 @@ import { App } from '../app';
 import { format, replaceAll } from '../util/format';
 import { extension } from 'mime-types';
 import qrcode from 'qrcode-terminal';
+import { canBeOriginalMessage } from '../model/PlatformMessage';
 
 const WHATSAPP_TO_DISCORD_FORMATTING = [
     {
@@ -52,6 +53,33 @@ export class WhatsAppPlatform {
 
         this.client.on('qr', (qr: string) => {
             qrcode.generate(qr, { small: true });
+        });
+
+        this.client.on('message_revoke_everyone', async (msg: WhatsAppMessage, revokedMsg: WhatsAppMessage) => {
+            console.log(msg, revokedMsg)
+            if (!revokedMsg) return;
+
+            const platformMessage: PlatformMessage | null = await PlatformMessage.findOne({
+                where: {
+                    platformMessageId: revokedMsg.id._serialized
+                }
+            });
+
+            if (!platformMessage) return;
+
+            await PlatformMessage.update({ deleted: true }, { where: { id: platformMessage.id } });
+
+            const message: Message | null = await Message.findOne({
+                where: {
+                    id: platformMessage.messageId
+                }
+            });
+
+            if (!message) return;
+
+            if (message.originalPlatform == MessagePlatform.WHATSAPP && canBeOriginalMessage(platformMessage.platformMessageType)) {
+                await Message.update({ originalPlatformMessageDeleted: true }, { where: { id: message.id } });
+            }
         });
 
         this.client.once('ready', async () => {
@@ -209,7 +237,7 @@ export class WhatsAppPlatform {
                     where: {
                         messageId: quotedMessage.id,
                         platform: MessagePlatform.DISCORD,
-                        platformMessageType: PlatformMessageType.MESSAGE
+                        platformMessageType: PlatformMessageType.MESSAGE // TODO: support system messages
                     }
                 });
                 if (quotedPlatformMessage !== null) {
@@ -220,7 +248,7 @@ export class WhatsAppPlatform {
             // Inserting will become a pain if we don't do it where we do it now, so we'll just update. Not a great solution, but it's w/e
             if (quotedMessage !== null) await Message.update({ replyToId: quotedMessage.id }, { where: { id: message.id } });
 
-            let truncatedQuoteContent: string = cleanContent(quotedMessage ? quotedMessage.originalPlatform === MessagePlatform.DISCORD ? quotedMessage.content : format(quotedMessage.content, WHATSAPP_TO_DISCORD_FORMATTING) : quotedWhatsAppmessage.body, discordChannel) || '[no content]';
+            let truncatedQuoteContent: string = cleanContent(quotedMessage ? quotedMessage.originalPlatform == MessagePlatform.DISCORD ? quotedMessage.content : format(quotedMessage.content, WHATSAPP_TO_DISCORD_FORMATTING) : quotedWhatsAppmessage.body, discordChannel) || '[no content]';
             if (truncatedQuoteContent.length > 50) {
                 truncatedQuoteContent = truncatedQuoteContent.slice(0, 51) + '...';
             }

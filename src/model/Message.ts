@@ -21,21 +21,21 @@ export class Message extends Model {
     public author!: Author;
     @AllowNull(false)
     @ForeignKey(() => Author)
-    @Column({ type: DataType.INTEGER })
+    @Column(DataType.INTEGER)
     public authorId!: number;
 
     @BelongsTo(() => Channel)
     public channel!: Channel;
     @AllowNull(false)
     @ForeignKey(() => Channel)
-    @Column({ type: DataType.INTEGER })
+    @Column(DataType.INTEGER)
     public channelId!: number;
 
     @BelongsTo(() => Message)
     public replyTo: Message | null;
     @AllowNull
     @ForeignKey(() => Message)
-    @Column({ type: DataType.INTEGER })
+    @Column(DataType.INTEGER)
     public replyToId!: number;
 
     @AllowNull(false)
@@ -56,5 +56,8 @@ export class Message extends Model {
 
     @HasMany(() => PlatformMessage)
     public platformMessages!: PlatformMessage[];
+
+    @Column({ type: DataType.BOOLEAN, defaultValue: false })
+    public originalPlatformMessageDeleted!: boolean;
 
 };
