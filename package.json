@@ -15,7 +15,7 @@
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.25.3",
     "sequelize-typescript": "^2.1.5",
-    "whatsapp-web.js": "^1.19.5"
+    "whatsapp-web.js": "^1.21.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
